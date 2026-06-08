@@ -1,0 +1,9 @@
+{
+    "name": "resume-analysis",
+    "version": "1.0.0",
+    "description": "AI猎头：岗位智能匹配助手 - 上传简历，智能推荐高匹配岗位",
+    "scripts": {
+        "dev": "vercel dev",
+        "build": "echo 'Static site - no build required'"
+    }
+}

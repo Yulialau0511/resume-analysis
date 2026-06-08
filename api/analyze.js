@@ -1,4 +1,4 @@
-const API_TOKEN = 'pat_1iZO7Dz2OWQC6a9Rx3gqAJ10BQx3a9slMoWkDkx0nE9ZRaAODYqZlgDdTGoOQgNn';
+const API_TOKEN = process.env.COZE_API_TOKEN;
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
