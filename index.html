@@ -244,21 +244,16 @@
             throw new Error('文件上传返回格式异常');
         }
 
-        async function callWorkflow(searchQuery, resumeUrl) {
+async function callWorkflow(searchQuery, resumeUrl) {
             const fileType = selectedFile.name.endsWith('.pdf') ? 'pdf' : 'docx';
 
-            const resp = await fetch(API_URL, {
+            const resp = await fetch('/api/analyze', {
                 method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + API_TOKEN,
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     search_query: searchQuery,
-                    my_resume: {
-                        url: resumeUrl,
-                        file_type: fileType
-                    }
+                    resume_url: resumeUrl,
+                    file_type: fileType
                 })
             });
 
