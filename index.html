@@ -242,13 +242,18 @@
         async function callWorkflow(searchQuery, resumeUrl) {
             const fileType = selectedFile.name.endsWith('.pdf') ? 'pdf' : 'docx';
 
-            const resp = await fetch('/api/analyze', {
+            const resp = await fetch('https://nq5xgnvdhs.coze.site/run', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImMwNTQ1ZjM1LWY0M2YtNDU1OS1iNmUzLTc3ODc1MTFiZDc4YiJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbInZCRkNGM2RJVnBJY3ZaVXBjZ2xkV0hmTXg4RzVpU1ZBIl0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzgwOTAzNzc3LCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NjQyMjg3MjMwNTg0NjE5MDA4Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NjQ4OTIzNDgwNzA4MDg3ODYwIn0.GgwM2S_UOHVXJWsCV1UPspMFe0063Dd8nrakCdpiYm6MtuDz6wtkwo2PKakD8xmznhfiJ2Mu-n2hQotnzcdcNwbxyEPNtxxFzRgnRs8ZgJpTRPG2hXBhUajOhK2gBLhfmqBWxXy1FpDXROo4jrzCHkxPmBEonWI3MsMIFFMFe3wyQ2RXK7mFuUNQaY7PxufPQ1gp8r4tOZu49JuZEJGD6Fl1gj3_DvDHnRsaM3Hqa4zqsuxtmgHeKFQ9gpVNtkFsxUnU7Jh613rWhbykubXhh3lBaTHAu1QFxBghKNX3E9FlpwNaKp4Rjmlqoz7SuzMbMqiKt_2kOYhNHQJEOi2-_A',
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     search_query: searchQuery,
-                    resume_url: resumeUrl,
-                    file_type: fileType
+                    my_resume: {
+                        url: resumeUrl,
+                        file_type: fileType
+                    }
                 })
             });
 
