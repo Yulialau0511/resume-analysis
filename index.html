@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI猎头:岗位智能匹配助手</title>
+    <title>招聘市场岗位匹配度智能分析</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -95,8 +95,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>AI猎头:岗位智能匹配助手</h1>
-            <p>上传简历，AI帮你筛选推荐高匹配度岗位，制定简历优化方案和面试准备指南</p>
+            <h1>招聘市场岗位匹配度智能分析</h1>
+            <p>上传简历，智能匹配岗位，提供简历修改建议及面试辅导</p>
         </div>
 
         <div class="card" id="inputCard">
@@ -140,10 +140,15 @@
             </div>
         </div>
 
-        <div class="footer">由 Coze 工作流驱动</div>
+        <div class="footer">由 AI 智能分析引擎驱动</div>
     </div>
 
     <script>
+        // ===== 配置区（替换为你的真实 API Token）=====
+        const API_TOKEN = 'pat_1iZO7Dz2OWQC6a9Rx3gqAJ10BQx3a9slMoWkDkx0nE9ZRaAODYqZlgDdTGoOQgNn';
+        const API_URL = 'https://nq5xgnvdhs.coze.site/run';
+        // =============================================
+
         let selectedFile = null;
 
         const uploadArea = document.getElementById('uploadArea');
@@ -242,10 +247,10 @@
         async function callWorkflow(searchQuery, resumeUrl) {
             const fileType = selectedFile.name.endsWith('.pdf') ? 'pdf' : 'docx';
 
-            const resp = await fetch('https://nq5xgnvdhs.coze.site/run', {
+            const resp = await fetch(API_URL, {
                 method: 'POST',
                 headers: {
-                    'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImMwNTQ1ZjM1LWY0M2YtNDU1OS1iNmUzLTc3ODc1MTFiZDc4YiJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbInZCRkNGM2RJVnBJY3ZaVXBjZ2xkV0hmTXg4RzVpU1ZBIl0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzgwOTAzNzc3LCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NjQyMjg3MjMwNTg0NjE5MDA4Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NjQ4OTIzNDgwNzA4MDg3ODYwIn0.GgwM2S_UOHVXJWsCV1UPspMFe0063Dd8nrakCdpiYm6MtuDz6wtkwo2PKakD8xmznhfiJ2Mu-n2hQotnzcdcNwbxyEPNtxxFzRgnRs8ZgJpTRPG2hXBhUajOhK2gBLhfmqBWxXy1FpDXROo4jrzCHkxPmBEonWI3MsMIFFMFe3wyQ2RXK7mFuUNQaY7PxufPQ1gp8r4tOZu49JuZEJGD6Fl1gj3_DvDHnRsaM3Hqa4zqsuxtmgHeKFQ9gpVNtkFsxUnU7Jh613rWhbykubXhh3lBaTHAu1QFxBghKNX3E9FlpwNaKp4Rjmlqoz7SuzMbMqiKt_2kOYhNHQJEOi2-_A',
+                    'Authorization': 'Bearer ' + API_TOKEN,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
