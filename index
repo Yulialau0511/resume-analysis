@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校招智能分析</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; padding: 40px 0 30px; }
+        .header h1 { font-size: 28px; color: #1a365d; margin-bottom: 8px; }
+        .header p { color: #4a5568; font-size: 16px; }
+        .card {
+            background: white; border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 32px; margin-bottom: 20px;
+        }
+        .form-group { margin-bottom: 24px; }
+        .form-group label {
+            display: block; font-weight: 600; color: #2d3748;
+            margin-bottom: 8px; font-size: 15px;
+        }
+        .form-group label .required { color: #e53e3e; }
+        .form-group input[type="text"] {
+            width: 100%; padding: 12px 16px;
+            border: 2px solid #e2e8f0; border-radius: 10px;
+            font-size: 15px; transition: border-color 0.2s; outline: none;
+        }
+        .form-group input[type="text"]:focus { border-color: #4299e1; }
+        .upload-area {
+            border: 2px dashed #cbd5e0; border-radius: 12px;
+            padding: 40px 20px; text-align: center; cursor: pointer;
+            transition: all 0.3s; background: #f7fafc;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #4299e1; background: #ebf8ff;
+        }
+        .upload-area .icon { font-size: 48px; color: #4299e1; margin-bottom: 12px; }
+        .upload-area p { color: #4a5568; font-size: 15px; }
+        .upload-area .hint { color: #a0aec0; font-size: 13px; margin-top: 8px; }
+        .file-info {
+            display: none; padding: 12px 16px; background: #f0fff4;
+            border: 1px solid #c6f6d5; border-radius: 10px; margin-top: 12px;
+        }
+        .file-info .name { font-weight: 600; color: #276749; }
+        .file-info .size { color: #48bb78; font-size: 13px; margin-left: 8px; }
+        .file-info .remove { float: right; color: #e53e3e; cursor: pointer; font-size: 13px; }
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 10px;
+            font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4299e1, #3182ce); color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(66,153,225,0.4);
+        }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .loading { display: none; text-align: center; padding: 40px; }
+        .spinner {
+            width: 48px; height: 48px;
+            border: 4px solid #e2e8f0; border-top-color: #4299e1;
+            border-radius: 50%; animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading p { color: #4a5568; font-size: 15px; }
+        .loading .step { color: #a0aec0; font-size: 13px; margin-top: 4px; }
+        .result { display: none; }
+        .result iframe {
+            width: 100%; height: 600px; border: none; border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .result .open-btn {
+            display: inline-block; margin-top: 12px; padding: 10px 24px;
+            background: #48bb78; color: white; border-radius: 8px;
+            text-decoration: none; font-weight: 600;
+        }
+        .result .open-btn:hover { background: #38a169; }
+        .error-msg {
+            color: #e53e3e; background: #fff5f5;
+            border: 1px solid #fed7d7; border-radius: 10px;
+            padding: 12px 16px; margin-top: 12px; display: none;
+        }
+        .footer { text-align: center; color: #a0aec0; font-size: 13px; padding: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>校招智能分析</h1>
+            <p>上传简历，智能匹配校招岗位</p>
+        </div>
+
+        <div class="card" id="inputCard">
+            <div class="form-group">
+                <label>岗位搜索关键词 <span class="required">*</span></label>
+                <input type="text" id="searchQuery" placeholder="例如：校园招聘经理 广东" />
+            </div>
+
+            <div class="form-group">
+                <label>上传简历 <span class="required">*</span></label>
+                <div class="upload-area" id="uploadArea">
+                    <div class="icon">📄</div>
+                    <p>点击选择或拖拽简历文件到这里</p>
+                    <p class="hint">支持 PDF、DOCX 格式</p>
+                    <input type="file" id="fileInput" accept=".pdf,.docx" style="display:none" />
+                </div>
+                <div class="file-info" id="fileInfo">
+                    <span class="name" id="fileName"></span>
+                    <span class="size" id="fileSize"></span>
+                    <span class="remove" onclick="removeFile()">删除</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="submitBtn" onclick="startAnalysis()">
+                开始分析
+            </button>
+            <div class="error-msg" id="errorMsg"></div>
+        </div>
+
+        <div class="loading" id="loadingCard">
+            <div class="spinner"></div>
+            <p>正在分析中，请稍候...</p>
+            <p class="step" id="loadingStep">正在上传简历</p>
+        </div>
+
+        <div class="card result" id="resultCard">
+            <h3 style="margin-bottom:12px;color:#2d3748;">分析结果</h3>
+            <iframe id="resultFrame" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+            <div style="text-align:center;">
+                <a class="open-btn" id="openResultBtn" target="_blank">在新窗口打开</a>
+            </div>
+        </div>
+
+        <div class="footer">由 Coze 工作流驱动</div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) handleFileSelect(files[0]);
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) handleFileSelect(e.target.files[0]);
+        });
+
+        function handleFileSelect(file) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['pdf', 'docx'].includes(ext)) {
+                showError('仅支持 PDF 和 DOCX 格式的简历');
+                return;
+            }
+            if (file.size > 20 * 1024 * 1024) {
+                showError('文件大小不能超过 20MB');
+                return;
+            }
+            selectedFile = file;
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatSize(file.size);
+            document.getElementById('fileInfo').style.display = 'block';
+            uploadArea.style.display = 'none';
+            hideError();
+        }
+
+        function removeFile() {
+            selectedFile = null;
+            document.getElementById('fileInfo').style.display = 'none';
+            uploadArea.style.display = 'block';
+            fileInput.value = '';
+        }
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + 'B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + 'MB';
+        }
+
+        function showError(msg) {
+            document.getElementById('errorMsg').textContent = msg;
+            document.getElementById('errorMsg').style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMsg').style.display = 'none';
+        }
+
+        function setLoading(show, step) {
+            document.getElementById('inputCard').style.display = show ? 'none' : 'block';
+            document.getElementById('loadingCard').style.display = show ? 'block' : 'none';
+            document.getElementById('resultCard').style.display = 'none';
+            if (step) document.getElementById('loadingStep').textContent = step;
+        }
+
+        function showResult(url) {
+            document.getElementById('inputCard').style.display = 'none';
+            document.getElementById('loadingCard').style.display = 'none';
+            document.getElementById('resultCard').style.display = 'block';
+            document.getElementById('resultFrame').src = url;
+            document.getElementById('openResultBtn').href = url;
+        }
+
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const resp = await fetch('https://tmpfile.link/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!resp.ok) throw new Error('文件上传失败');
+            const data = await resp.json();
+            if (data.status && data.data && data.data.file && data.data.file.url) {
+                return data.data.file.url.full || data.data.file.url.short;
+            }
+            throw new Error('文件上传返回格式异常');
+        }
+
+        async function callWorkflow(searchQuery, resumeUrl) {
+            const fileType = selectedFile.name.endsWith('.pdf') ? 'pdf' : 'docx';
+
+            const resp = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    search_query: searchQuery,
+                    resume_url: resumeUrl,
+                    file_type: fileType
+                })
+            });
+
+            if (!resp.ok) {
+                const text = await resp.text();
+                throw new Error('请求失败 (' + resp.status + '): ' + text);
+            }
+
+            return await resp.json();
+        }
+
+        async function startAnalysis() {
+            const searchQuery = document.getElementById('searchQuery').value.trim();
+            if (!searchQuery) { showError('请输入岗位搜索关键词'); return; }
+            if (!selectedFile) { showError('请上传简历文件'); return; }
+
+            hideError();
+            setLoading(true, '正在上传简历...');
+
+            try {
+                setLoading(true, '正在上传简历...');
+                const resumeUrl = await uploadFile(selectedFile);
+
+                setLoading(true, '正在分析匹配岗位...');
+                const result = await callWorkflow(searchQuery, resumeUrl);
+
+                let vizUrl = null;
+                if (result.data && result.data.visualization_url) {
+                    vizUrl = result.data.visualization_url;
+                } else if (result.visualization_url) {
+                    vizUrl = result.visualization_url;
+                } else if (result.data && typeof result.data === 'string') {
+                    try {
+                        const parsed = JSON.parse(result.data);
+                        vizUrl = parsed.visualization_url;
+                    } catch(e) {}
+                }
+
+                if (vizUrl) {
+                    showResult(vizUrl);
+                } else {
+                    document.getElementById('inputCard').style.display = 'none';
+                    document.getElementById('loadingCard').style.display = 'none';
+                    document.getElementById('resultCard').style.display = 'block';
+                    document.getElementById('resultFrame').style.display = 'none';
+                    document.getElementById('openResultBtn').style.display = 'none';
+                    document.querySelector('#resultCard h3').insertAdjacentHTML('afterend',
+                        '<pre style="background:#f7fafc;padding:16px;border-radius:8px;overflow:auto;font-size:13px;">' + JSON.stringify(result, null, 2) + '</pre>'
+                    );
+                }
+            } catch (err) {
+                console.error('分析失败:', err);
+                setLoading(false);
+                showError('分析失败：' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>
