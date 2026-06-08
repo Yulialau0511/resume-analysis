@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         const response = await fetch('https://nq5xgnvdhs.coze.site/run', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${API_TOKEN}`,
+                'Authorization': 'Bearer ' + API_TOKEN,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -37,9 +37,9 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error('API 调用失败:', error);
-        return res.status(500).json({ 
+        return res.status(500).json({
             error: '分析失败',
-            message: error.message 
+            message: error.message
         });
     }
 }
